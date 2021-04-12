@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Sockets;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
@@ -13,6 +12,12 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using System.Net.Sockets;
+using System.Xml;
+using System.Configuration;
+using static App1.Models.Dataview;
+
+using System.Text.Json;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -23,57 +28,115 @@ namespace App1
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        //TODO : A portszámot külső fájlból  
-        static Int32 PortNumber = 13000;
-        static string IP = "192.168.8.253";
+        
+        //static Int32 PortNumber = 13000;
+        //static string IP = "192.168.8.253";
+        static string IP = ConfigurationManager.AppSettings.Get("ip");
+        static Int32 PortNumber = Int32.Parse(ConfigurationManager.AppSettings.Get("port"));
+        
+
         public MainPage()
         {
             this.InitializeComponent();
-            NumberOutputBox.Text =SendData(IP, "Start", PortNumber);
+            NumberSend number = new NumberSend() { Command = "ReadColoum" };
+            var reply = SendData(IP, number, PortNumber);
+            var utf8Reader = new Utf8JsonReader(reply);
+
+            NumberReceive response = JsonSerializer.Deserialize<NumberReceive>(ref utf8Reader);
+            NumberOutputBox.Text = response.Nums.ToString();
         }
 
-        private void SendButtonClick(object sender, RoutedEventArgs e)
+        private void AddButtonClick(object sender, RoutedEventArgs e)
         {
-            string sendData = NumberInputBox.Text;
-            int number;
-            
-            if (!(string.IsNullOrWhiteSpace(sendData)) && Int32.TryParse(sendData, out number))
+           
+            if (CheckNumber(NumberInputBox.Text))
             {
-                NumberOutputBox.Text = SendData(IP, sendData, PortNumber);
+                NumberSend number = new NumberSend(){ Command = "AddNumber" , Nums = Int32.Parse(NumberInputBox.Text) };
+                var reply = SendData(IP, number, PortNumber);
+                var utf8Reader = new Utf8JsonReader(reply);
+
+                NumberReceive response = JsonSerializer.Deserialize<NumberReceive>(ref utf8Reader);
+                NumberOutputBox.Text = response.Nums.ToString();
+                NumberInputBox.Text = "";
+            }
+                       
+        }
+        private void SubtractsButtonClick(object sender, RoutedEventArgs e)
+        {
+           
+            if (CheckNumber(NumberInputBox.Text))
+            {
+           
+                NumberSend number = new NumberSend() { Command = "SubtractsNumber", Nums = Int32.Parse(NumberInputBox.Text) };
+                var reply = SendData(IP, number, PortNumber);
+                var utf8Reader = new Utf8JsonReader(reply);
+
+                NumberReceive response = JsonSerializer.Deserialize<NumberReceive>(ref utf8Reader);
+                NumberOutputBox.Text = response.Nums.ToString();
                 NumberInputBox.Text = "";
             }
            
 
-            //ReceiveData();
-         }
+        }
 
-        public string SendData(String server, String message, Int32 port)
+        private bool CheckNumber(string boxNum)
+        {
+            int n;
+            
+            if (!(string.IsNullOrWhiteSpace(boxNum)) && Int32.TryParse(boxNum, out n))
+            {
+                if (Int32.Parse(boxNum) >= 0)
+                {
+                    return true;
+                }
+                StatusMessage("Kérem pozitív számot írjon be");
+                return false;
+            }
+            else
+            {
+                StatusMessage("Kérem számot írjon be");
+                return false;
+            }
+                
+        }
+
+        public byte[] SendData(String server, object message, Int32 port)
         {
             try
             {
-                
+
                 TcpClient client = new TcpClient(server, port);
                 NetworkStream stream = client.GetStream();
-                                                                    
-                    Byte[] data = System.Text.Encoding.ASCII.GetBytes(message);
-                    stream.Write(data, 0, data.Length);
-                    data = new Byte[256];
-                    String response = String.Empty;
+
                 
-                    Int32 bytes = stream.Read(data, 0, data.Length);
-                    response = System.Text.Encoding.ASCII.GetString(data, 0, bytes);
-                               
+                var options = new JsonSerializerOptions
+                {
+                    WriteIndented = true
+                };
+                byte[] data = JsonSerializer.SerializeToUtf8Bytes(message, options);
+                stream.Write(data, 0, data.Length);
+                
+                byte[] bytes = new Byte[256];
+                
+                int data1 = stream.Read(bytes, 0, bytes.Length);
+                
+
                 stream.Close();
                 client.Close();
-                return response;
+                return bytes;
             }
             catch (Exception e)
-            {
-                StatusField.Text = e.Message;
+            { 
+                StatusMessage(e.Message);
                 return null;
             }
-            
+
         }
-                      
+
+        private void StatusMessage(string msg)
+        {
+            StatusField.Text = msg;
+        }
+                
     }
 }

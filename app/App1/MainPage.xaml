@@ -8,7 +8,7 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="20"/>
@@ -41,12 +41,17 @@
                     VerticalAlignment="Center" 
                     Height="50"  MinWidth="100"/>
 
-            <Button x:Name="SendButton"
+            <Button x:Name="AddButton"
                     Grid.Column="1"
                     Grid.Row="0"
                     Content="Add"
-                    Click="SendButtonClick" 
+                    Click="AddButtonClick" 
                     Height="50" Width="90"/>
+            <Button x:Name="SubtractsButton"
+                Grid.Column="1"
+                Content="Subtracts"
+                Click="SubtractsButtonClick" 
+                Height="50" Width="90" HorizontalAlignment="Center"/>
 
         </Grid>
         <Grid Grid.Row="2"

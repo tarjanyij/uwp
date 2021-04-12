@@ -9,9 +9,7 @@ namespace server
         {
             Console.WriteLine("**** Server start ****");
 
-            //WriteDataToDatabase(32);
-
-            //TODO: Server socket adat fogadás küldés 
+                       
             Thread t = new Thread(delegate ()
             {
                 
@@ -20,7 +18,7 @@ namespace server
             t.Start();
 
             
-            Console.WriteLine("össszeg : {0}", Data.ReadColoumnSum());
+            //Console.WriteLine("össszeg : {0}", Data.ReadColoumnSum());
 
 
             //TODO: server leállítás kilépés

@@ -11,24 +11,42 @@ namespace server
 {
     public class Data
     {
+        
         public static void WriteDataToDatabase(int num)
         {
-            using (var db = new AppContext())
+            
+            try{
+                using (var db = new AppContext())
+                {
+                    db.Numbers.Add(new Number() { Nums = num });
+                    db.SaveChanges();
+                }
+            }
+            catch (Exception ex)
             {
-
-                db.Numbers.Add(new Number() { Nums = num });
-                db.SaveChanges();
-
+                
             }
         }
 
         public static int ReadColoumnSum()
         {
-            using (var db = new AppContext())
+            try
             {
-                return db.Numbers.Sum(x => x.Nums);
+                using (var db = new AppContext())
+                {
+                    return db.Numbers.Sum(x => x.Nums);
+                }
             }
-
+            catch (Microsoft.Data.SqlClient.SqlException )
+            {
+                Console.WriteLine("Nincs SQL server");
+                return 0;
+            }
+            catch (System.Reflection.TargetInvocationException )
+            {
+                Console.WriteLine("Nincs SQL server2");
+                return 0;
+            }
         }
         public class Number
         {

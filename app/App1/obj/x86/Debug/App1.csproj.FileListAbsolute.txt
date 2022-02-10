@@ -55,4 +55,6 @@ D:\uwp\app\App1\obj\x86\Debug\qualifiers.txt.intermediate
 D:\uwp\app\App1\obj\x86\Debug\MultipleQualifiersPerDimensionFound.txt
 D:\uwp\app\App1\obj\x86\Debug\ProjectArchitectures.txt
 D:\uwp\app\App1\obj\x86\Debug\.winmd_cache\$Microsoft.UI.Xaml.Markup.winmd_636885238160000000.json
-D:\uwp\app\App1\obj\x86\Debug\App1.csprojAssemblyReference.cache
+D:\uwp\app\App1\bin\x86\Debug\System.Security.AccessControl.dll
+D:\uwp\app\App1\obj\x86\Debug\App1.csproj.AssemblyReference.cache
+D:\uwp\app\App1\obj\x86\Debug\FxResources.System.Security.AccessControl.SR.resw
